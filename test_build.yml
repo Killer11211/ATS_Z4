@@ -1,9 +1,9 @@
 name: Test and Build Java App
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ main, master ]  # ⬅️ kluczowa linia (0.5 pkt)
+  workflow_dispatch:             # umożliwia też ręczne uruchomienie z UI
 
 jobs:
   test_build:
@@ -19,7 +19,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    # Krok 1: Dry run aplikacji
+    # Krok 1: Dry run
     - name: Dry Run Application
       run: |
         echo "=== Dry Run ==="
@@ -32,11 +32,11 @@ jobs:
     - name: Run Unit Tests
       run: mvn test
 
-    # Krok 3: Budowanie pliku .jar
+    # Krok 3: Budowanie JAR
     - name: Package Application (JAR)
       run: mvn package -DskipTests
 
-    # Krok 4: Automatyczne testowanie zbudowanego .jar
+    # Krok 4: Testowanie gotowego JARa
     - name: Run JAR (automated test)
       run: |
         echo "=== Testing built JAR ==="
@@ -44,10 +44,9 @@ jobs:
       env:
         DRY_RUN: "true"
 
-    # Krok 5: Udostępnienie artefaktu
+    # Krok 5: Upload JARa jako artefakt
     - name: Upload .jar artifact
       uses: actions/upload-artifact@v4
       with:
         name: my-application
         path: target/*.jar
-
