@@ -47,6 +47,33 @@ jobs:
     # Krok 5: Upload JARa jako artefakt
     - name: Upload .jar artifact
       uses: actions/upload-artifact@v4
+
+      - name: Dry Run Application
+  run: |
+    echo "=== Dry Run ==="
+    cd app # Navigate to the directory containing the pom.xml
+    mvn clean compile -DskipTests
+    mvn exec:java -Dexec.mainClass="com.example.Main"
+  env:
+    DRY_RUN: "true"
+
+- name: Run Unit Tests
+  run: |
+    cd app # Navigate to the directory containing the pom.xml
+    mvn test
+
+- name: Package Application (JAR)
+  run: |
+    cd app # Navigate to the directory containing the pom.xml
+    mvn package -DskipTests
+
+- name: Run JAR (automated test)
+  run: |
+    echo "=== Testing built JAR ==="
+    cd app # Navigate to the directory containing the pom.xml
+    java -jar target/*.jar --dry-run
+  env:
+    DRY_RUN: "true"
       with:
         name: my-application
         path: target/*.jar
