@@ -1,52 +1,40 @@
-name: Test and Build Java App
+name: Build and Test Java App
 
 on:
   push:
-    branches: [ main, master ]  
-  workflow_dispatch:             
+    branches: [ "main", "master" ]
 
 jobs:
-  test_build:
+  build-test-package:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-    # Krok 1: Dry run
-    - name: Dry Run Application
-      run: |
-        echo "=== Dry Run ==="
-        mvn clean compile -DskipTests
-        mvn exec:java -Dexec.mainClass="com.example.Main"
-      env:
-        DRY_RUN: "true"
+      # Krok 1: Dry run – uruchomienie aplikacji
+      - name: Dry run - Run the app
+        run: mvn exec:java -Dexec.mainClass="app.Application"
 
-    # Krok 2: Testy jednostkowe
-    - name: Run Unit Tests
-      run: mvn test
+      # Krok 2: Testy jednostkowe
+      - name: Run Unit Tests
+        run: mvn test
 
-    # Krok 3: Budowanie JAR
-    - name: Package Application (JAR)
-      run: mvn package -DskipTests
+      # Krok 3: Pakowanie do formatu .jar
+      - name: Package the application
+        run: mvn package
 
-    # Krok 4: Testowanie gotowego JARa
-    - name: Run JAR (automated test)
-      run: |
-        echo "=== Testing built JAR ==="
-        java -jar target/*.jar --dry-run
-      env:
-        DRY_RUN: "true"
+      # Krok 4: Udostępnienie pliku .jar jako artefakt (v3)
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: orderapp-jar
+          path: target/*.jar
 
-    # Krok 5: Upload JARa jako artefakt
-    - name: Upload .jar artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: my-application
-        path: target/*.jar
+
