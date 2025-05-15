@@ -2,8 +2,8 @@ name: Test and Build Java App
 
 on:
   push:
-    branches: [ main, master ]  # ⬅️ kluczowa linia (0.5 pkt)
-  workflow_dispatch:             # umożliwia też ręczne uruchomienie z UI
+    branches: [ main, master ]  
+  workflow_dispatch:             
 
 jobs:
   test_build:
